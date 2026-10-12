@@ -68,7 +68,7 @@
 
         while (currentDay <= 365 && schedule.length < 52) {
             schedule.push(currentDay);
-            currentDay += 5 + Math.floor(seededRandom(seed++) * 4); // Abstand von 5 bis 8 Tagen
+            currentDay += 7 + Math.floor(seededRandom(seed++) * 4); // Abstand von 5 bis 8 Tagen
         }
         
         return schedule;
