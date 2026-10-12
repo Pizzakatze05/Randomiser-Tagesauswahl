@@ -64,7 +64,7 @@
     function generateSchedule(year) {
         let schedule = [];
         let seed = year; // Das Jahr dient als gemeinsamer Startwert
-        let currentDay = Math.floor(seededRandom(seed++) * 5) + 1;
+        let currentDay = Math.floor(seededRandom(seed++) * 5) + 2;
 
         while (currentDay <= 365 && schedule.length < 52) {
             schedule.push(currentDay);
