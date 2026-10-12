@@ -84,11 +84,11 @@
     const infoText = document.getElementById("infoText");
 
     if (schedule.includes(currentDay)) {
-        statusBox.innerText = "HEUTE ERLAUBT";
+        statusBox.innerText = "Heute Erlaubt!";
         statusBox.className = "status allowed";
         infoText.innerText = "Genieße deine freie Wahl für heute.";
     } else {
-        statusBox.innerText = "HEUTE PAUSE";
+        statusBox.innerText = "Heute Pause!";
         statusBox.className = "status denied";
         infoText.innerText = "Morgen ist ein neuer Tag. Bleib stark!";
     }
