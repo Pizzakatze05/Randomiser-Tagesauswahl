@@ -45,45 +45,57 @@
 </div>
 
 <script>
-    // 1. Tag des Jahres berechnen (1 - 365/366)
-    function getDayOfYear() {
-        const now = new Date();
-        const start = new Date(now.getFullYear(), 0, 0);
-        const diff = now - start;
-        const oneDay = 1000 * 60 * 60 * 24;
-        return Math.floor(diff / oneDay);
-    }
-
-    // 2. Einfacher Pseudo-Zufallsgenerator mit festem Seed (Linear Congruential Generator)
-    function seededRandom(seed) {
-        let x = Math.sin(seed++) * 10000;
-        return x - Math.floor(x);
-    }
-
-    // 3. Fahrplan für das ganze Jahr deterministisch generieren
-    function generateSchedule(year) {
+    // 1. Fahrplan ab heute für die nächsten Monate generieren
+    function generateSchedule() {
         let schedule = [];
-        let seed = year; // Das Jahr dient als gemeinsamer Startwert
-        let currentDay = Math.floor(seededRandom(seed++) * 5) + 1;
+        let startDate = new Date(); // Startet ab heute
+        startDate.setHours(0, 0, 0, 0);
 
-        while (currentDay <= 365 && schedule.length < 52) {
-            schedule.push(currentDay);
-            currentDay += 5 + Math.floor(seededRandom(seed++) * 4); // Abstand von 5 bis 8 Tagen
+        let currentDate = new Date(startDate);
+
+        // Seed für den Zufallsgenerator basierend auf dem Startdatum (Jahr + Monat)
+        let seed = startDate.getFullYear() * 100 + startDate.getMonth();
+
+        // Pseudo-Zufallsgenerator
+        function seededRandom() {
+            let x = Math.sin(seed++) * 10000;
+            return x - Math.floor(x);
         }
-        
+
+        // Startabstand im ersten Monat zwischen 2 und 4 Tagen
+        let currentGap = Math.floor(seededRandom() * 3) + 2;
+        let currentMonth = currentDate.getMonth();
+
+        // Generiere Einträge für z.B. die nächsten 2 Jahre (730 Tage)
+        for (let i = 0; i < 730; i++) {
+            // Prüfen, ob wir in einem neuen Monat sind -> Abstand um +1 erhöhen
+            if (currentDate.getMonth() !== currentMonth) {
+                currentMonth = currentDate.getMonth();
+                currentGap += 1; // Erhöht sich jeden Monat um +1
+            }
+
+            // Tag zum Zeitplan hinzufügen (als String im Format YYYY-MM-DD für den genauen Vergleich)
+            schedule.push(new Date(currentDate).toISOString().split('T')[0]);
+
+            // Nächsten Tag berechnen (aktueller Abstand + kleine Zufallsvariation von 0-1 Tag)
+            let daysToAdd = currentGap + Math.floor(seededRandom() * 2);
+            currentDate.setDate(currentDate.getDate() + daysToAdd);
+        }
+
         return schedule;
     }
 
-    // 4. Status prüfen und anzeigen
-    const currentYear = new Date().getFullYear();
-    const currentDay = getDayOfYear();
-    
-    const schedule = generateSchedule(currentYear);
+    // 2. Heutiges Datum formatieren (YYYY-MM-DD)
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+
+    const schedule = generateSchedule();
 
     const statusBox = document.getElementById("statusBox");
     const infoText = document.getElementById("infoText");
 
-    if (schedule.includes(currentDay)) {
+    // 3. Prüfen, ob heute im generierten Fahrplan enthalten ist
+    if (schedule.includes(todayString)) {
         statusBox.innerText = "Heute Erlaubt!";
         statusBox.className = "status allowed";
         infoText.innerText = "Genieße deine freie Wahl für heute.";
