@@ -57,7 +57,7 @@
         let scheduleArray = [];
 
         // Startet am 10. Oktober 2023
-        let startDate = new Date(2023, 9, 10);
+        let startDate = new Date(2026, 1, 1);
         startDate.setHours(0, 0, 0, 0);
 
         let currentDate = new Date(startDate);
@@ -78,8 +78,8 @@
                 totalMonthsPassed -= 1;
             }
 
-            let minGap = 4 + totalMonthsPassed * 1;
-            let maxGap = 6 + totalMonthsPassed * 2;
+            let minGap = 1 + totalMonthsPassed * 1;
+            let maxGap = 2 + totalMonthsPassed * 2;
             let range = maxGap - minGap;
 
             scheduleArray.push(formatDate(currentDate));
