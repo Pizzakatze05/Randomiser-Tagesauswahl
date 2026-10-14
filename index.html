@@ -45,18 +45,22 @@
 </div>
 
 <script>
-    // 1. Fahrplan generieren: Startet exakt am 10. Oktober
+    // Hilfsfunktion: Formatierung YYYY-MM-DD ohne UTC-Zeitzonenfehler
+    function formatDate(date) {
+        let year = date.getFullYear();
+        let month = String(date.getMonth() + 1).padStart(2, '0');
+        let day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
     function generateSchedule() {
         let schedule = [];
 
-        // Fester Start am 10. Oktober (z.B. 2023 oder 2024)
-        // Format: Date(Jahr, MonatIndex [9 = Oktober], Tag)
+        // Startet am 10. Oktober 2023
         let startDate = new Date(2023, 9, 10);
         startDate.setHours(0, 0, 0, 0);
 
         let currentDate = new Date(startDate);
-
-        // Fester Seed für deterministische/gleiche Ergebnisse bei jedem Aufruf
         let seed = 20231010;
 
         function seededRandom() {
@@ -64,30 +68,22 @@
             return x - Math.floor(x);
         }
 
-        // Generiere ausreichend viele Einträge für z. B. 5 Jahre
-        for (let i = 0; i < 1825; i++) {
-            // Berechne, wie viele volle Monate seit dem 10. Oktober vergangen sind
+        // Generiere ausreichend Tage für die Zukunft
+        for (let i = 0; i < 2000; i++) {
             let yearsDiff = currentDate.getFullYear() - startDate.getFullYear();
             let monthsDiff = currentDate.getMonth() - startDate.getMonth();
             let totalMonthsPassed = yearsDiff * 12 + monthsDiff;
 
-            // Wenn der aktuelle Tag noch vor dem 10. des Monats liegt, zählt dieser Monat noch nicht als voll vollendet
             if (currentDate.getDate() < 10) {
                 totalMonthsPassed -= 1;
             }
 
-            // Basisabstände berechnen:
-            // Monat 0 (10. Okt): minGap = 2, maxGap = 3
-            // Monat 1 (10. Nov): minGap = 3, maxGap = 5
-            // Monat 2 (10. Dez): minGap = 4, maxGap = 7
             let minGap = 2 + totalMonthsPassed * 1;
             let maxGap = 3 + totalMonthsPassed * 2;
-            let range = maxGap - minGap; // Spannweite für den Zufall
+            let range = maxGap - minGap;
 
-            // Datum zum Fahrplan hinzufügen
-            schedule.push(new Date(currentDate).toISOString().split('T')[0]);
+            schedule.push(formatDate(currentDate));
 
-            // Nächsten Tag anhand des aktuellen Monatsabstands berechnen
             let daysToAdd = minGap + Math.floor(seededRandom() * (range + 1));
             currentDate.setDate(currentDate.getDate() + daysToAdd);
         }
@@ -95,25 +91,26 @@
         return schedule;
     }
 
-    // 2. Heutiges Datum formatieren (YYYY-MM-DD)
-    const today = new Date();
-    const todayString = today.toISOString().split('T')[0];
+    // Ausführung nach dem Laden der Seite
+    document.addEventListener("DOMContentLoaded", function() {
+        const today = new Date();
+        const todayString = formatDate(today);
 
-    const schedule = generateSchedule();
+        const schedule = generateSchedule();
 
-    const statusBox = document.getElementById("statusBox");
-    const infoText = document.getElementById("infoText");
+        const statusBox = document.getElementById("statusBox");
+        const infoText = document.getElementById("infoText");
 
-    // 3. Prüfen, ob heute im generierten Fahrplan enthalten ist
-    if (schedule.includes(todayString)) {
-        statusBox.innerText = "Heute Erlaubt!";
-        statusBox.className = "status allowed";
-        infoText.innerText = "Genieße deine freie Wahl für heute.";
-    } else {
-        statusBox.innerText = "Heute Pause!";
-        statusBox.className = "status denied";
-        infoText.innerText = "Morgen ist ein neuer Tag. Bleib stark!";
-    }
+        if (schedule.includes(todayString)) {
+            statusBox.innerText = "Heute Erlaubt!";
+            statusBox.className = "status allowed";
+            infoText.innerText = "Genieße deine freie Wahl für heute.";
+        } else {
+            statusBox.innerText = "Heute Pause!";
+            statusBox.className = "status denied";
+            infoText.innerText = "Morgen ist ein neuer Tag. Bleib stark!";
+        }
+    });
 </script>
 
 </body>
