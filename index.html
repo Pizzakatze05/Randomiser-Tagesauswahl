@@ -45,7 +45,7 @@
 </div>
 
 <script>
-    // Hilfsfunktion: Formatierung YYYY-MM-DD ohne UTC-Zeitzonenfehler
+    // Hilfsfunktion: Formatierung YYYY-MM-DD ohne Zeitzonenfehler
     function formatDate(date) {
         let year = date.getFullYear();
         let month = String(date.getMonth() + 1).padStart(2, '0');
@@ -54,7 +54,7 @@
     }
 
     function generateSchedule() {
-        let schedule = [];
+        let scheduleArray = [];
 
         // Startet am 10. Oktober 2023
         let startDate = new Date(2023, 9, 10);
@@ -82,21 +82,22 @@
             let maxGap = 3 + totalMonthsPassed * 2;
             let range = maxGap - minGap;
 
-            schedule.push(formatDate(currentDate));
+            scheduleArray.push(formatDate(currentDate));
 
             let daysToAdd = minGap + Math.floor(seededRandom() * (range + 1));
             currentDate.setDate(currentDate.getDate() + daysToAdd);
         }
 
-        return schedule;
+        return scheduleArray;
     }
 
-    // Ausführung nach dem Laden der Seite
+    // Fahrplan global verfügbar machen
+    const schedule = generateSchedule();
+
+    // UI aktualisieren, sobald das Dokument bereit ist
     document.addEventListener("DOMContentLoaded", function() {
         const today = new Date();
         const todayString = formatDate(today);
-
-        const schedule = generateSchedule();
 
         const statusBox = document.getElementById("statusBox");
         const infoText = document.getElementById("infoText");
