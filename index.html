@@ -45,41 +45,49 @@
 </div>
 
 <script>
-    // 1. Fahrplan ab heute für die nächsten Monate generieren
+    // 1. Fahrplan generieren: Startet exakt am 10. Oktober
     function generateSchedule() {
         let schedule = [];
-        let startDate = new Date(); // Startet ab heute
+
+        // Fester Start am 10. Oktober (z.B. 2023 oder 2024)
+        // Format: Date(Jahr, MonatIndex [9 = Oktober], Tag)
+        let startDate = new Date(2023, 9, 10);
         startDate.setHours(0, 0, 0, 0);
 
         let currentDate = new Date(startDate);
 
-        // Seed für den Zufallsgenerator basierend auf dem Startdatum (Jahr + Monat)
-        let seed = startDate.getFullYear() * 100 + startDate.getMonth();
+        // Fester Seed für deterministische/gleiche Ergebnisse bei jedem Aufruf
+        let seed = 20231010;
 
-        // Pseudo-Zufallsgenerator
         function seededRandom() {
             let x = Math.sin(seed++) * 10000;
             return x - Math.floor(x);
         }
 
-        // Startwerte für den ersten Monat: Kleinere Zahl = 2, Spannweite = 1 (ergibt 2 bis 3 Tage)
-        let minGap = 2;
-        let range = 1;
-        let currentMonth = currentDate.getMonth();
+        // Generiere ausreichend viele Einträge für z. B. 5 Jahre
+        for (let i = 0; i < 1825; i++) {
+            // Berechne, wie viele volle Monate seit dem 10. Oktober vergangen sind
+            let yearsDiff = currentDate.getFullYear() - startDate.getFullYear();
+            let monthsDiff = currentDate.getMonth() - startDate.getMonth();
+            let totalMonthsPassed = yearsDiff * 12 + monthsDiff;
 
-        // Generiere Einträge für z.B. die nächsten 2 Jahre (730 Tage)
-        for (let i = 0; i < 730; i++) {
-            // Prüfen, ob wir in einem neuen Monat sind
-            if (currentDate.getMonth() !== currentMonth) {
-                currentMonth = currentDate.getMonth();
-                minGap += 1;  // Erhöht die kleinere Zahl um +1
-                range += 1;   // Erhöht die größere Zahl zusätzlich um +1 (insgesamt +2 für das Maximum)
+            // Wenn der aktuelle Tag noch vor dem 10. des Monats liegt, zählt dieser Monat noch nicht als voll vollendet
+            if (currentDate.getDate() < 10) {
+                totalMonthsPassed -= 1;
             }
 
-            // Tag zum Zeitplan hinzufügen (als String im Format YYYY-MM-DD für den genauen Vergleich)
+            // Basisabstände berechnen:
+            // Monat 0 (10. Okt): minGap = 2, maxGap = 3
+            // Monat 1 (10. Nov): minGap = 3, maxGap = 5
+            // Monat 2 (10. Dez): minGap = 4, maxGap = 7
+            let minGap = 2 + totalMonthsPassed * 1;
+            let maxGap = 3 + totalMonthsPassed * 2;
+            let range = maxGap - minGap; // Spannweite für den Zufall
+
+            // Datum zum Fahrplan hinzufügen
             schedule.push(new Date(currentDate).toISOString().split('T')[0]);
 
-            // Nächsten Tag berechnen: minGap bis (minGap + range)
+            // Nächsten Tag anhand des aktuellen Monatsabstands berechnen
             let daysToAdd = minGap + Math.floor(seededRandom() * (range + 1));
             currentDate.setDate(currentDate.getDate() + daysToAdd);
         }
