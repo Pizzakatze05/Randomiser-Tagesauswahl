@@ -62,23 +62,25 @@
             return x - Math.floor(x);
         }
 
-        // Startabstand im ersten Monat zwischen 2 und 4 Tagen
-        let currentGap = Math.floor(seededRandom() * 3) + 2;
+        // Startwerte für den ersten Monat: Kleinere Zahl = 2, Spannweite = 1 (ergibt 2 bis 3 Tage)
+        let minGap = 2;
+        let range = 1;
         let currentMonth = currentDate.getMonth();
 
         // Generiere Einträge für z.B. die nächsten 2 Jahre (730 Tage)
         for (let i = 0; i < 730; i++) {
-            // Prüfen, ob wir in einem neuen Monat sind -> Abstand um +1 erhöhen
+            // Prüfen, ob wir in einem neuen Monat sind
             if (currentDate.getMonth() !== currentMonth) {
                 currentMonth = currentDate.getMonth();
-                currentGap += 1; // Erhöht sich jeden Monat um +1
+                minGap += 1;  // Erhöht die kleinere Zahl um +1
+                range += 1;   // Erhöht die größere Zahl zusätzlich um +1 (insgesamt +2 für das Maximum)
             }
 
             // Tag zum Zeitplan hinzufügen (als String im Format YYYY-MM-DD für den genauen Vergleich)
             schedule.push(new Date(currentDate).toISOString().split('T')[0]);
 
-            // Nächsten Tag berechnen (aktueller Abstand + kleine Zufallsvariation von 0-1 Tag)
-            let daysToAdd = currentGap + Math.floor(seededRandom() * 2);
+            // Nächsten Tag berechnen: minGap bis (minGap + range)
+            let daysToAdd = minGap + Math.floor(seededRandom() * (range + 1));
             currentDate.setDate(currentDate.getDate() + daysToAdd);
         }
 
